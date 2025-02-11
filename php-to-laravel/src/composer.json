@@ -1,0 +1,15 @@
+{
+    "name": "safeno/php-to-laravel",
+    "require-dev": {
+        "symfony/var-dumper": "^7.2"
+    },
+    "authors": [
+        {
+            "name": "Lucas Safeno",
+            "email": "lugnorio@gmail.com"
+        }
+    ],
+    "require": {
+        "fakerphp/faker": "^1.24"
+    }
+}
