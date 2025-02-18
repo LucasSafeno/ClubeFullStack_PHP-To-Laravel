@@ -6,30 +6,27 @@ use app\controllers\LoginController;
 use app\controllers\ProductController;
 
 
-try {
-    $router = new Router();
-    /**
-     *? Home
-     */
 
-    $router->add('GET', '/', [HomeController::class, 'index']);
+$router = new Router($app->container);
+/**
+ *? Home
+ */
 
-    /* *
-     ? Product
-     */
-    $router->add('GET', '/product/([a-z]+)/', [ProductController::class, 'index']);
-    $router->add('GET', '/product/([a-z]+)/category/([a-z]+)', [ProductController::class, 'index']);
+$router->add('GET', '/', [HomeController::class, 'index']);
 
-
-    /**
-     *? Login
-     */
-    $router->add('GET', '/login', [LoginController::class, 'index']);
-    $router->add('POST', '/login', [LoginController::class, 'store']);
+/* *
+ ? Product
+ */
+$router->add('GET', '/product/([a-z]+)/', [ProductController::class, 'show']);
+$router->add('GET', '/product/([a-z]+)/category/([a-z]+)', [ProductController::class, 'index']);
 
 
-    $router->execute();
+/**
+ *? Login
+ */
+$router->add('GET', '/login', [LoginController::class, 'index']);
+$router->add('POST', '/login', [LoginController::class, 'store']);
 
-} catch (\Throwable $th) {
-    //throw $th;
-}
+
+$router->execute();
+

@@ -2,12 +2,25 @@
 
 namespace core\library;
 
+use DI\Container;
+use core\exceptions\ControllerNotFoundException;
+
 class Router
 {
 
     protected array $routes = [];
     protected ?string $controller = null;
     protected string $action;
+    protected array $parameters = [];
+
+
+
+
+    public function __construct(
+        private Container $container
+    ) {
+
+    } // __construct
 
     public function add(
         string $method,
@@ -30,6 +43,7 @@ class Router
     protected function handleUri(array $routes)
     {
         foreach ($routes as $uri => $route) {
+            // ? Rota sem parametros
 
             if ($uri === REQUEST_URI) {
                 [$this->controller, $this->action] = $route;
@@ -39,9 +53,10 @@ class Router
 
             $pattern = str_replace('/', '\/', trim($uri, '/'));
 
-            if ($uri !== '/' && preg_match("/^$pattern$/", trim(REQUEST_URI, '/'), $matches)) {
+            // ? Rota com parametros
+            if ($uri !== '/' && preg_match("/^$pattern$/", trim(REQUEST_URI, '/'), $this->parameters)) {
                 [$this->controller, $this->action] = $route;
-                unset($matches[0]);
+                unset($this->parameters[0]);
                 break;
             }
         }// foreach
@@ -50,7 +65,11 @@ class Router
 
         if ($this->controller) {
 
-            return $this->handleController();
+            return $this->handleController(
+                $this->controller,
+                $this->action,
+                $this->parameters
+            );
         }
 
         return $this->handleNotFound();
@@ -58,9 +77,21 @@ class Router
     }// handleUri()
 
 
-    protected function handleController()
-    {
-        dump('Found Controller');
+    protected function handleController(
+        string $controller,
+        string $action,
+        array $parameters
+    ) {
+
+        //! caso classe não exista (controller)
+        if (!class_exists($controller) || !method_exists($controller, $action)) {
+            throw new ControllerNotFoundException(
+                "[$controller::$action] does not exist"
+            );
+        }
+
+        $controller = $this->container->get($controller);
+        $this->container->call([$controller, $action], [...$parameters]);
     }
 
     protected function handleNotFound()
